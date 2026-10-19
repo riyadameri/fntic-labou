@@ -1,0 +1,164 @@
+{
+  "laboratories": [
+    {
+      "id": "lab-1",
+      "name": "مخبر شبكات الحاسوب (Computer Networks)",
+      "department": "علوم الحاسوب"
+    },
+    {
+      "id": "lab-2",
+      "name": "مخبر الإلكترونيات المتقدمة (Advanced Electronics)",
+      "department": "الهندسة الكهربائية"
+    },
+    {
+      "id": "lab-3",
+      "name": "مخبر علم الروبوتات الذكية (Robotics Lab)",
+      "department": "الذكاء الاصطناعي"
+    }
+  ],
+  "professors": [
+    {
+      "id": "prof-1",
+      "name": "أ.د. عشبي محمد السعيد",
+      "department": "علوم الحاسوب",
+      "rfidCard": "RFID-9988"
+    },
+    {
+      "id": "prof-2",
+      "name": "أ. سامعي",
+      "department": "الهندسة الكهربائية",
+      "rfidCard": "RFID-1234"
+    },
+    {
+      "id": "prof-3",
+      "name": "أستاذة نادية",
+      "department": "الذكاء الاصطناعي",
+      "rfidCard": "RFID-5566"
+    },
+    {
+      "id": "prof-4",
+      "name": "أستاذة ابتسام شعيب",
+      "department": "علوم الحاسوب",
+      "rfidCard": "RFID-7788"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "sch-1",
+      "subject": "شبكات الحاسوب المتقدمة (حصّة عملية)",
+      "professorId": "prof-1",
+      "professorName": "أ.د. عشبي محمد السعيد",
+      "laboratoryId": "lab-1",
+      "laboratoryName": "مخبر شبكات الحاسوب (Computer Networks)",
+      "timeSlot": "الأحد 08:30 - 10:00"
+    },
+    {
+      "id": "sch-2",
+      "subject": "أنظمة التحكم والمتحكمات الدقيقة",
+      "professorId": "prof-2",
+      "professorName": "أ. سامعي",
+      "laboratoryId": "lab-2",
+      "laboratoryName": "مخبر الإلكترونيات المتقدمة (Advanced Electronics)",
+      "timeSlot": "الثلاثاء 10:30 - 12:00"
+    },
+    {
+      "id": "sch-3",
+      "subject": "مقدمة في الذكاء الاصطناعي ولغة بايثون",
+      "professorId": "prof-3",
+      "professorName": "أستاذة نادية",
+      "laboratoryId": "lab-3",
+      "laboratoryName": "مخبر علم الروبوتات الذكية (Robotics Lab)",
+      "timeSlot": "الأربعاء 13:00 - 14:30"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "eq-1",
+      "name": "جهاز راسم الإشارة (Oscilloscope Keysight)",
+      "laboratoryId": "lab-2",
+      "laboratoryName": "مخبر الإلكترونيات المتقدمة (Advanced Electronics)",
+      "validity": "OK",
+      "isBorrowable": true,
+      "calibrationInterval": 6,
+      "calibrationSchedule": [
+        {
+          "date": "2026-11-30",
+          "status": "Pending",
+          "targetValue": "Calibration Reference Range 100MHz"
+        },
+        {
+          "date": "2027-05-30",
+          "status": "Pending",
+          "targetValue": "Calibration Reference Range 100MHz"
+        }
+      ]
+    },
+    {
+      "id": "eq-2",
+      "name": "بطاقة متحكم Raspberry Pi 4 Model B",
+      "laboratoryId": "lab-1",
+      "laboratoryName": "مخبر شبكات الحاسوب (Computer Networks)",
+      "validity": "OK",
+      "isBorrowable": true,
+      "calibrationInterval": 12,
+      "calibrationSchedule": [
+        {
+          "date": "2027-05-30",
+          "status": "Pending",
+          "targetValue": "Boot and OS verification"
+        }
+      ]
+    }
+  ],
+  "borrowRequests": [
+    {
+      "id": "br-1",
+      "studentName": "أحمد جبار",
+      "equipmentId": "eq-1",
+      "equipmentName": "جهاز راسم الإشارة (Oscilloscope Keysight)",
+      "laboratoryName": "مخبر الإلكترونيات المتقدمة (Advanced Electronics)",
+      "requestedDate": "2026-05-30",
+      "status": "Pending"
+    }
+  ],
+  "complaints": [
+    {
+      "id": "c-1",
+      "studentName": "كمال قادري",
+      "targetRole": "Lab Supervisor",
+      "message": "الجهاز رقم 3 في مخبر الشبكات لا يقلع ولا يظهر أي استجابة.",
+      "requestedDate": "2026-05-30",
+      "status": "Pending"
+    }
+  ],
+  "rfidCards": [
+    {
+      "id": "rf-1",
+      "rfidCode": "RFID-9988",
+      "professorId": "prof-1",
+      "professorName": "أ.د. عشبي محمد السعيد",
+      "assignedDate": "2026-05-30"
+    },
+    {
+      "id": "rf-2",
+      "rfidCode": "RFID-1234",
+      "professorId": "prof-2",
+      "professorName": "أ. سامعي",
+      "assignedDate": "2026-05-30"
+    },
+    {
+      "id": "rf-3",
+      "rfidCode": "RFID-5566",
+      "professorId": "prof-3",
+      "professorName": "أستاذة نادية",
+      "assignedDate": "2026-05-31"
+    },
+    {
+      "id": "rf-4",
+      "rfidCode": "RFID-7788",
+      "professorId": "prof-4",
+      "professorName": "أستاذة ابتسام شعيب",
+      "assignedDate": "2026-05-31"
+    }
+  ]
+}

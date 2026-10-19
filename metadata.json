@@ -1,0 +1,6 @@
+{
+  "name": "Laboratory Management System",
+  "description": "A comprehensive laboratory management system with modules for department heads, lab supervisors, students, and secretary generals, with MongoDB integration support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

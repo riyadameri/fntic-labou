@@ -1,0 +1,161 @@
+{
+  "entities": {
+    "Laboratory": {
+      "title": "Laboratory",
+      "description": "A scientific laboratory in the department",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "department": { "type": "string" }
+      },
+      "required": ["id", "name", "department"]
+    },
+    "Professor": {
+      "title": "Professor",
+      "description": "An academic professor details, including their assigned RFID card",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "department": { "type": "string" },
+        "rfidCard": { "type": "string" }
+      },
+      "required": ["id", "name", "department"]
+    },
+    "Schedule": {
+      "title": "Schedule",
+      "description": "The laboratory usage timetable/schedules for classes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "professorId": { "type": "string" },
+        "professorName": { "type": "string" },
+        "laboratoryId": { "type": "string" },
+        "laboratoryName": { "type": "string" },
+        "timeSlot": { "type": "string" }
+      },
+      "required": ["id", "subject", "professorId", "laboratoryId"]
+    },
+    "Equipment": {
+      "title": "Equipment",
+      "description": "Physical devices and scientific instruments owned by labs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "laboratoryId": { "type": "string" },
+        "laboratoryName": { "type": "string" },
+        "validity": { "type": "string" },
+        "isBorrowable": { "type": "boolean" },
+        "calibrationInterval": { "type": "integer" }
+      },
+      "required": ["id", "name", "laboratoryId", "validity"]
+    },
+    "BorrowRequest": {
+      "title": "BorrowRequest",
+      "description": "Requests made by students to borrow specific laboratory equipment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentName": { "type": "string" },
+        "equipmentId": { "type": "string" },
+        "equipmentName": { "type": "string" },
+        "laboratoryName": { "type": "string" },
+        "requestedDate": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "studentName", "equipmentId", "status"]
+    },
+    "Complaint": {
+      "title": "Complaint",
+      "description": "Service breakdown or issues reported by students about laboratory equipment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentName": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "message": { "type": "string" },
+        "requestedDate": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "studentName", "message", "status"]
+    },
+    "RfidCard": {
+      "title": "RfidCard",
+      "description": "A mapping card for physical access authorization mapped to an academic professor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "rfidCode": { "type": "string" },
+        "professorId": { "type": "string" },
+        "professorName": { "type": "string" },
+        "assignedDate": { "type": "string" }
+      },
+      "required": ["id", "rfidCode", "professorId"]
+    },
+    "InstalledSoftware": {
+      "title": "InstalledSoftware",
+      "description": "Softwares, licenses, simulators or simulation packages installed on lab workstations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "laboratoryName": { "type": "string" },
+        "installDate": { "type": "string" }
+      },
+      "required": ["id", "name", "laboratoryName"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "IoT Hardware integration parameters of Raspberry Pi and ESP32 Relay latch controllers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "raspberryPiIp": { "type": "string" },
+        "esp32Ip": { "type": "string" }
+      },
+      "required": ["id", "raspberryPiIp", "esp32Ip"]
+    }
+  },
+  "firestore": {
+    "/laboratories/{labId}": {
+      "schema": "Laboratory",
+      "description": "Collection of laboratories"
+    },
+    "/professors/{profId}": {
+      "schema": "Professor",
+      "description": "Collection of professors and their RFID credentials"
+    },
+    "/schedules/{schId}": {
+      "schema": "Schedule",
+      "description": "Collection of timetables for class lab occupancy"
+    },
+    "/equipment/{eqId}": {
+      "schema": "Equipment",
+      "description": "Collection of equipments and their calibration states"
+    },
+    "/borrowRequests/{borrowId}": {
+      "schema": "BorrowRequest",
+      "description": "Collection of device borrowing requests by students"
+    },
+    "/complaints/{complaintId}": {
+      "schema": "Complaint",
+      "description": "Collection of device breakdowns/fault complaints"
+    },
+    "/rfidCards/{rfidId}": {
+      "schema": "RfidCard",
+      "description": "Collection of cards distributed/registered for professors"
+    },
+    "/installedSoftwares/{softwareId}": {
+      "schema": "InstalledSoftware",
+      "description": "Collection of software packages hosted per lab"
+    },
+    "/settings/{settingsId}": {
+      "schema": "Settings",
+      "description": "Single document container for IoT global hardware IP config"
+    }
+  }
+}

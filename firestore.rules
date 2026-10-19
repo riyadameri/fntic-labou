@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global lock for unmatched collections
+    match /{document=**} {
+      allow read, write: if true;
+    }
+
+    match /laboratories/{labId} {
+      allow read, write: if true;
+    }
+
+    match /professors/{profId} {
+      allow read, write: if true;
+    }
+
+    match /schedules/{schId} {
+      allow read, write: if true;
+    }
+
+    match /equipment/{eqId} {
+      allow read, write: if true;
+    }
+
+    match /borrowRequests/{borrowId} {
+      allow read, write: if true;
+    }
+
+    match /complaints/{complaintId} {
+      allow read, write: if true;
+    }
+
+    match /rfidCards/{rfidId} {
+      allow read, write: if true;
+    }
+
+    match /installedSoftwares/{softwareId} {
+      allow read, write: if true;
+    }
+
+    match /settings/{settingsId} {
+      allow read, write: if true;
+    }
+  }
+}
