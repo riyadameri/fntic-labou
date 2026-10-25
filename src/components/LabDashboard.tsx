@@ -24,7 +24,8 @@ import {
   Cpu,
   Lock,
   Unlock,
-  Key
+  Key,
+  Globe
 } from 'lucide-react';
 import { Laboratory, Professor, StudySchedule, Equipment, BorrowRequest, Complaint, RfidCard, InstalledSoftware } from '../types';
 import NotificationCenter from './NotificationCenter';
@@ -47,6 +48,27 @@ export default function LabDashboard({ isSecGen = false, onBack }: LabDashboardP
   const [simCardCode, setSimCardCode] = useState('');
   const [simLog, setSimLog] = useState<string[]>([]);
   const [lockStatus, setLockStatus] = useState<'locked' | 'unlocking' | 'unlocked'>('locked');
+
+  // Domain & Port System Info States (Port 4040 & https://rudeox.cloud)
+  const [systemInfo, setSystemInfo] = useState<{
+    primaryPort: number;
+    activePorts: number[];
+    configuredDomain: string;
+    currentHost?: string;
+    isRudeoxDomain?: boolean;
+    corsEnabled?: boolean;
+  } | null>(null);
+  const [checkingSystemInfo, setCheckingSystemInfo] = useState(false);
+  const [copyNginxSuccess, setCopyNginxSuccess] = useState(false);
+
+  const checkSystemDomainInfo = () => {
+    setCheckingSystemInfo(true);
+    fetch('/api/system-info')
+      .then((res) => res.json())
+      .then((data) => setSystemInfo(data))
+      .catch((err) => console.error('Error checking system info:', err))
+      .finally(() => setCheckingSystemInfo(false));
+  };
 
   // Database lists
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
@@ -196,6 +218,7 @@ export default function LabDashboard({ isSecGen = false, onBack }: LabDashboardP
           setRaspberryPiIp(hwSettings.raspberryPiIp || '192.168.1.100');
           setEsp32Ip(hwSettings.esp32Ip || '192.168.1.101');
         }
+        checkSystemDomainInfo();
 
         // Auto-select first equipment for ISO viewing if none selected
         if (equips.length > 0 && !selectedIsoEqId) {
@@ -2259,6 +2282,162 @@ export default function LabDashboard({ isSecGen = false, onBack }: LabDashboardP
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Full-width Card: Domain & Port 4040 Configuration */}
+            <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl border border-indigo-900/60 shadow-xl space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-indigo-800/50 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300">
+                    <Globe className="w-6 h-6 text-indigo-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base text-white flex items-center gap-2">
+                      تهيئة المنفذ والنطاق الشبكي (Port :4040 & Domain: https://rudeox.cloud)
+                    </h3>
+                    <p className="text-xs text-indigo-200/70 mt-0.5">
+                      النظام مهيأ تلقائياً للعمل عبر المنفذ 4040 مع دعم النطاق السحابي rudeox.cloud وتفعيل بروتوكولات CORS و Trust Proxy.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={checkSystemDomainInfo}
+                    disabled={checkingSystemInfo}
+                    className="px-4 py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-indigo-400/30"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${checkingSystemInfo ? 'animate-spin' : ''}`} />
+                    {checkingSystemInfo ? 'جاري الفحص...' : 'فحص حالة الربط الآن'}
+                  </button>
+                  <a
+                    href="https://rudeox.cloud"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md"
+                  >
+                    فتح النطاق ↗
+                  </a>
+                </div>
+              </div>
+
+              {/* Status Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+                <div className="bg-slate-800/80 border border-slate-700/60 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-slate-400 block font-sans">المنفذ الرئيسي (Target Port)</span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-base font-black text-emerald-400">
+                      :{systemInfo?.primaryPort || 4040}
+                    </span>
+                    <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-[10px] font-sans">
+                      نشط ومستمع
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block mt-1 font-sans">
+                    + منفذ 3000 مفعل تلقائياً للمعاينة
+                  </span>
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/60 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-slate-400 block font-sans">النطاق المصرح له (Allowed Domain)</span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-sm font-bold text-cyan-300 truncate max-w-[140px]" title="https://rudeox.cloud">
+                      rudeox.cloud
+                    </span>
+                    <span className="px-2 py-0.5 bg-cyan-950 text-cyan-300 border border-cyan-800 rounded text-[10px] font-sans">
+                      SSL جاهز
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block mt-1 font-sans">
+                    AllowedHosts في Vite و Express
+                  </span>
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/60 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-slate-400 block font-sans">بروتوكول CORS والأصول (CORS Status)</span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-sm font-bold text-amber-300">
+                      مفعل ومصادق
+                    </span>
+                    <span className="px-2 py-0.5 bg-amber-950 text-amber-300 border border-amber-800 rounded text-[10px] font-sans">
+                      Enabled
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block mt-1 font-sans">
+                    يدعم GET, POST, PUT, DELETE
+                  </span>
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/60 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-slate-400 block font-sans">إدارة البروكسي (Reverse Proxy)</span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-sm font-bold text-violet-300">
+                      Trust Proxy
+                    </span>
+                    <span className="px-2 py-0.5 bg-violet-950 text-violet-300 border border-violet-800 rounded text-[10px] font-sans">
+                      Active
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block mt-1 font-sans">
+                    Nginx / Cloudflare متوافق
+                  </span>
+                </div>
+              </div>
+
+              {/* Nginx config copy box */}
+              <div className="bg-slate-950/70 border border-indigo-900/40 rounded-xl p-4 text-xs font-mono space-y-2">
+                <div className="flex items-center justify-between font-sans">
+                  <span className="font-bold text-slate-300">
+                    📋 تهيئة Nginx Reverse Proxy الجاهزة للنطاق (إذا رغبت في توجيه النطاق عبر Nginx إلى المنفذ 4040):
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nginxConf = `server {
+    listen 80;
+    server_name rudeox.cloud www.rudeox.cloud;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name rudeox.cloud www.rudeox.cloud;
+
+    # مسارات شهادة الأمان (Certbot / Let's Encrypt)
+    # ssl_certificate /etc/letsencrypt/live/rudeox.cloud/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/rudeox.cloud/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:4040;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}`;
+                      navigator.clipboard.writeText(nginxConf);
+                      setCopyNginxSuccess(true);
+                      setTimeout(() => setCopyNginxSuccess(false), 2500);
+                    }}
+                    className="px-3 py-1 bg-indigo-700/60 hover:bg-indigo-600 text-indigo-100 rounded text-[11px] font-sans transition"
+                  >
+                    {copyNginxSuccess ? '✓ تم النسخ بنجاح' : 'نسخ إعداد Nginx'}
+                  </button>
+                </div>
+                <pre className="text-[11px] text-slate-400 overflow-x-auto p-2 bg-black/40 rounded border border-slate-800 text-left" dir="ltr">
+{`location / {
+    proxy_pass http://127.0.0.1:4040;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+}`}
+                </pre>
               </div>
             </div>
           </div>

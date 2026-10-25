@@ -13,10 +13,26 @@ export default defineConfig(() => {
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      port: 4040,
+      cors: true,
+      allowedHosts: [
+        'rudeox.cloud',
+        '.rudeox.cloud',
+        'localhost',
+        '127.0.0.1',
+      ],
+    },
+    preview: {
+      port: 4040,
+      cors: true,
+      allowedHosts: [
+        'rudeox.cloud',
+        '.rudeox.cloud',
+        'localhost',
+        '127.0.0.1',
+      ],
     },
   };
 });

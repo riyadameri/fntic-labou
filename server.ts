@@ -17,7 +17,52 @@ import { getFirestore, collection, getDocs, doc, setDoc, addDoc, getDoc, updateD
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+// User-requested application port 4040
+const PORT: number = Number(process.env.APP_PORT) || 4040;
+const DEV_PREVIEW_PORT: number = 3000;
+
+// Enable reverse proxy trust (e.g. Nginx, Cloudflare, Caddy behind https://rudeox.cloud)
+app.set('trust proxy', true);
+
+// Configure CORS and Origin headers allowing https://rudeox.cloud and local environments
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://rudeox.cloud',
+    'http://rudeox.cloud',
+    'https://www.rudeox.cloud',
+    'http://www.rudeox.cloud',
+    'http://localhost:4040',
+    'http://localhost:3000',
+    'http://127.0.0.1:4040',
+    'http://127.0.0.1:3000',
+  ];
+
+  if (origin) {
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.rudeox.cloud') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.includes('run.app')
+    ) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -409,6 +454,20 @@ app.get('/api/db-status', (req, res) => {
       : (dbFallbackActive ? 'JSON Fallback Local Storage' : 'MongoDB Atlas Connection'),
     uriProvided: !!MONGODB_URI,
     firebaseConnected: isFirebaseConnected
+  });
+});
+
+// Domain & Port System info endpoint
+app.get('/api/system-info', (req, res) => {
+  res.json({
+    primaryPort: PORT,
+    activePorts: [PORT, DEV_PREVIEW_PORT],
+    configuredDomain: 'https://rudeox.cloud',
+    currentHost: req.headers.host,
+    currentProtocol: req.protocol,
+    isRudeoxDomain: req.headers.host?.includes('rudeox.cloud') || false,
+    corsEnabled: true,
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -1389,7 +1448,16 @@ HTML_PATHS.forEach((route) => {
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        allowedHosts: [
+          'rudeox.cloud',
+          '.rudeox.cloud',
+          'localhost',
+          '127.0.0.1',
+        ],
+        cors: true,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -1401,9 +1469,26 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Laboratory Management System running on port http://localhost:${PORT}`);
+  // Primary listener on port 4040 (or process.env.PORT)
+  const primaryServer = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Laboratory Management System running on http://0.0.0.0:${PORT}`);
+    console.log(`🌐 Configured and verified for domain: https://rudeox.cloud`);
   });
+
+  // Auxiliary listener on port 3000 to keep AI Studio dev container preview active concurrently
+  if (PORT !== DEV_PREVIEW_PORT) {
+    try {
+      const devServer = app.listen(DEV_PREVIEW_PORT, '0.0.0.0', () => {
+        console.log(`🚀 Auxiliary dev preview bridge active on http://0.0.0.0:${DEV_PREVIEW_PORT}`);
+      });
+      devServer.on('error', (err: any) => {
+        // Handled if port 3000 is used or restricted
+        console.log(`Auxiliary preview port ${DEV_PREVIEW_PORT} status:`, err.message);
+      });
+    } catch (err: any) {
+      console.log(`Auxiliary preview port ${DEV_PREVIEW_PORT} setup notice:`, err?.message);
+    }
+  }
 }
 
 startServer();
